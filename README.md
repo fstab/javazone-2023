@@ -22,5 +22,5 @@ docker-compose up
 
 Open Grafana on [http://localhost:3000](http://localhost:3000). Default user is _admin_ with password _admin_.
 
-_Note: The `docker-compose.yaml` works on my Linux with docker-compose 2.20.3, but I've heard reports that other versions or operating systems have issues with the `network_mode: host` setting. I'm using `network_mode: host` because I found it easiest if all containers can address each other on `localhost`.  If you run into issues with that you might need to configure networking differently._
+_Note: If you have Mac or Windows, you might need to replace `localhost` with `host.docker.internal`._
 
