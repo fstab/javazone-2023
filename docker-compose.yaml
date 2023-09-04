@@ -1,0 +1,153 @@
+version: "3"
+services:
+  hello-world-app:
+    image: javazone2023-otel-base-image
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM eclipse-temurin:17-jre
+        WORKDIR /
+        RUN apt-get update
+        RUN apt-get upgrade -y
+        RUN apt-get install -y uuid-runtime
+        RUN curl -sOL https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.29.0/opentelemetry-javaagent.jar
+    network_mode: host
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./hello-world-app/target/hello-world-app.jar:/hello-world-app.jar
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_SERVICE_NAME=hello-world-app
+    command:
+      - /bin/bash
+      - -c
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=$(uuidgen)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dgreeting.service.port=8081,8082,8083,8084 -jar /hello-world-app.jar
+  greeting-service-out-of-the-box-classic-histogram:
+    # The javazone2023-otel-base-image is coming from the hello-world-up service above.
+    image: javazone2023-otel-base-image
+    network_mode: host
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./greeting-service-out-of-the-box/target/greeting-service-out-of-the-box.jar:/greeting-service-out-of-the-box.jar
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=explicit_bucket_histogram
+      - OTEL_SERVICE_NAME=greeting-service-out-of-the-box-classic-histogram
+    command:
+      - /bin/bash
+      - -c
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=$(uuidgen)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dserver.port=8081 -jar /greeting-service-out-of-the-box.jar
+  greeting-service-out-of-the-box-exponential-histogram:
+    # The javazone2023-otel-base-image is coming from the hello-world-up service above.
+    image: javazone2023-otel-base-image
+    network_mode: host
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./greeting-service-out-of-the-box/target/greeting-service-out-of-the-box.jar:/greeting-service-out-of-the-box.jar
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_METRICS_DEFAULT_HISTOGRAM_AGGREGATION=base2_exponential_bucket_histogram
+      - OTEL_SERVICE_NAME=greeting-service-out-of-the-box-exponential-histogram
+    command:
+      - /bin/bash
+      - -c
+      #- OTEL_RESOURCE_ATTRIBUTES="service.name=greeting-service-out-of-the-box-exponential-histogram,service.namespace=JavaZone2023,service.version=1.0.0-SNAPSHOT,service.instance.id=$(uuidgen),host.name=$(hostname),host.type=$(uname -m),os.name=$(uname -s),os.version=$(uname -r)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dserver.port=8082 -jar /greeting-service-out-of-the-box.jar
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=$(uuidgen)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dserver.port=8082 -jar /greeting-service-out-of-the-box.jar
+  greeting-service-custom-metrics:
+    # The javazone2023-otel-base-image is coming from the hello-world-up service above.
+    image: javazone2023-otel-base-image
+    network_mode: host
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./greeting-service-custom-metrics/target/greeting-service-custom-metrics.jar:/greeting-service-custom-metrics.jar
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_SERVICE_NAME=greeting-service-custom-metrics
+    command:
+      - /bin/bash
+      - -c
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=$(uuidgen)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dserver.port=8083 -jar /greeting-service-custom-metrics.jar
+  greeting-service-custom-span-attribute:
+    # The javazone2023-otel-base-image is coming from the hello-world-up service above.
+    image: javazone2023-otel-base-image
+    network_mode: host
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./greeting-service-custom-span-attribute/target/greeting-service-custom-span-attribute.jar:/greeting-service-custom-span-attribute.jar
+    environment:
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_SERVICE_NAME=greeting-service-custom-span-attribute
+    command:
+      - /bin/bash
+      - -c
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=$(uuidgen)" java -Dotel.metric.export.interval=500 -Dotel.bsp.schedule.delay=500 -javaagent:/opentelemetry-javaagent.jar -Dserver.port=8084 -jar /greeting-service-custom-span-attribute.jar
+  grafana:
+    image: grafana/grafana:10.0.0
+    network_mode: host
+    ports:
+      - "3000:3000"
+    volumes: 
+      - ./docker-compose/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/grafana-datasources.yaml
+      - ./docker-compose/grafana-dashboards.yaml:/etc/grafana/provisioning/dashboards/grafana-dashboards.yaml
+      - ./docker-compose/grafana-dashboard-classic-histogram.json:/etc/grafana/grafana-dashboard-classic-histogram.json
+      - ./docker-compose/grafana-dashboard-exponential-histogram.json:/etc/grafana/grafana-dashboard-exponential-histogram.json
+  prometheus:
+    image: prom/prometheus:v2.44.0
+    network_mode: host
+    ports:
+      - "9090:9090"
+    command:
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --enable-feature=native-histograms
+      - --config.file=/etc/prometheus/prometheus.yml
+  tempo:
+    image: grafana/tempo:2.1.1
+    network_mode: host
+    ports:
+      - "3200:3200"
+      - "4417:4417"
+      - "4418:4418"
+      - "9096:9096"
+    volumes:
+      - ./docker-compose/tempo-config.yaml:/config.yaml
+    command:
+      - --config.file=/config.yaml
+  loki:
+    image: grafana/loki:2.8.2
+    network_mode: host
+    ports:
+      - "3100:3100"
+  collector:
+    image: otel/opentelemetry-collector-contrib:0.83.0
+    network_mode: host
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./docker-compose/otelcol-config.yaml:/config.yaml
+    command:
+      - --config=file:/config.yaml
+      - --feature-gates=pkg.translator.prometheus.NormalizeName
+  load-generator:
+    image: curlimages/curl:8.2.1
+    network_mode: host
+    command:
+      - /bin/sh
+      - -c
+      - 'while true ; do curl -s http://localhost:8080 ; sleep 1 ; done'

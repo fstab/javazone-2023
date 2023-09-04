@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.fstab.demo</groupId>
+    <artifactId>javazone-2023</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>hello-world-app</module>
+        <module>greeting-service-out-of-the-box</module>
+        <module>greeting-service-custom-metrics</module>
+        <module>greeting-service-custom-span-attribute</module>
+        <module>histogram-config</module>
+    </modules>
+
+</project>
