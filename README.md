@@ -2,6 +2,10 @@
 
 This is the demo for my talk [Application Monitoring with Grafana and OpenTelemetry](https://2023.javazone.no/program/fa0469ab-f13c-417d-bf68-d7818ed02aa3) at [JavaZone 2023](https://javazone.no/).
 
+# Video
+
+https://vimeo.com/861623888
+
 # Slides
 
 [Google Slides](https://docs.google.com/presentation/d/14qDI5RiBA3ZPj3iXr7mD_6vRduUq6B9D529gTCPM_Mg/edit?usp=sharing)
